@@ -1,8 +1,6 @@
 import javax.swing.*;
 import java.awt.event.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 public class ChatClient extends JFrame implements Runnable {
