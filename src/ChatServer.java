@@ -48,11 +48,38 @@ public class ChatServer {
           StringTokenizer st = new StringTokenizer(msgFromClient);
           String LoginName = st.nextToken();
           String MsgType = st.nextToken();
+          int logout_n = -1;
+          String msg = "";
 
-          for(int i = 0; i < LoginNames.size(); i++) {
-            Socket pSocket = (Socket) ClientSockets.elementAt(i);
-            DataOutputStream pOut = new DataOutputStream(pSocket.getOutputStream());
-            pOut.writeUTF(LoginName + " has logged in.");
+          while(st.hasMoreTokens()) {
+            msg = msg + " " + st.nextToken();
+          }
+
+          if(MsgType.equals("LOGIN")) {
+            for (int i = 0; i < LoginNames.size(); i++) {
+              Socket pSocket = (Socket) ClientSockets.elementAt(i);
+              DataOutputStream pOut = new DataOutputStream(pSocket.getOutputStream());
+              pOut.writeUTF(LoginName + " has logged in.");
+            }
+          } else if (MsgType.equals("LOGOUT")) {
+            for (int i = 0; i < LoginNames.size(); i++) {
+              if(LoginName == LoginNames.elementAt(i)) {
+                logout_n = i;
+              }
+              Socket pSocket = (Socket) ClientSockets.elementAt(i);
+              DataOutputStream pOut = new DataOutputStream(pSocket.getOutputStream());
+              pOut.writeUTF(LoginName + " has logged out.");
+            }
+            if(logout_n >= 0) {
+              LoginNames.removeElementAt(logout_n);
+              ClientSockets.removeElementAt(logout_n);
+            }
+          } else {
+            for (int i = 0; i < LoginNames.size(); i++) {
+              Socket pSocket = (Socket) ClientSockets.elementAt(i);
+              DataOutputStream pOut = new DataOutputStream(pSocket.getOutputStream());
+              pOut.writeUTF(LoginName + ": " + msg);
+            }
           }
         } catch (IOException e) {
           e.printStackTrace();

@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,6 +10,9 @@ public class ChatClient extends JFrame implements Runnable {
 
   Socket socket;
   JTextArea textArea;
+  JButton send, logout;
+  JTextField textField;
+
   Thread thread;
 
   DataInputStream din;
@@ -20,6 +25,35 @@ public class ChatClient extends JFrame implements Runnable {
     LoginName = login;
 
     textArea = new JTextArea(18, 50);
+    textField = new JTextField(30);
+
+    send = new JButton("Send");
+    logout = new JButton( "Logout");
+
+    send.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          dout.writeUTF(LoginName + " " + "DATA " + textField.getText().toString());
+          textField.setText("");
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
+
+    logout.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          dout.writeUTF(LoginName + " " + "LOGOUT");
+          System.exit(1);
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
+
     socket = new Socket("localhost", 4444);
 
     din = new DataInputStream(socket.getInputStream());
@@ -36,7 +70,12 @@ public class ChatClient extends JFrame implements Runnable {
   private void setup() {
     setSize(600, 400);
     JPanel panel = new JPanel();
+
     panel.add(new JScrollPane(textArea));
+    panel.add(textField);
+    panel.add(send);
+    panel.add(logout);
+
     add(panel);
     setVisible(true);
   }
@@ -54,6 +93,6 @@ public class ChatClient extends JFrame implements Runnable {
   }
 
   public static void main(String[] args) throws UnknownHostException, IOException {
-    ChatClient client = new ChatClient("User1");
+    ChatClient client = new ChatClient("User3");
   }
 }
