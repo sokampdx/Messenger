@@ -1,6 +1,5 @@
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -24,6 +23,17 @@ public class ChatClient extends JFrame implements Runnable {
     super(login);
     LoginName = login;
 
+    addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        try {
+          dout.writeUTF(LoginName + " " + "LOGOUT");
+          System.exit(1);
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+    });
+
     textArea = new JTextArea(18, 50);
     textField = new JTextField(30);
 
@@ -34,11 +44,37 @@ public class ChatClient extends JFrame implements Runnable {
       @Override
       public void actionPerformed(ActionEvent e) {
         try {
-          dout.writeUTF(LoginName + " " + "DATA " + textField.getText().toString());
+          if(textField.getText().length() > 0)
+            dout.writeUTF(LoginName + " " + "DATA " + textField.getText().toString());
           textField.setText("");
         } catch (IOException e1) {
           e1.printStackTrace();
         }
+      }
+    });
+
+    send.addKeyListener(new KeyListener() {
+      @Override
+      public void keyTyped(KeyEvent e) {
+
+      }
+
+      @Override
+      public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+          try {
+            if(textField.getText().length() > 0)
+              dout.writeUTF(LoginName + " " + "DATA " + textField.getText().toString());
+            textField.setText("");
+          } catch (IOException e1) {
+            e1.printStackTrace();
+          }
+        }
+      }
+
+      @Override
+      public void keyReleased(KeyEvent e) {
+
       }
     });
 
@@ -79,7 +115,6 @@ public class ChatClient extends JFrame implements Runnable {
     add(panel);
     setVisible(true);
   }
-
 
   @Override
   public void run() {
